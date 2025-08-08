@@ -22,7 +22,7 @@ jobs:
     - name: Instalar dependencias
       run: |
         python -m pip install --upgrade pip
-        pip install requests google-generativeai ftplib
+        pip install requests google-generativeai
 
     - name: Ejecutar el script de Python
       run: python obtener_eventos.py
