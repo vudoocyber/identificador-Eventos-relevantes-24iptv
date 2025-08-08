@@ -47,14 +47,16 @@ def analizar_con_gemini(eventos_data):
         "Basándote en la popularidad de las ligas, la cobertura mediática en la web y la relevancia de los competidores, "
         "identifica los 3 eventos más importantes del día. "
         "Devuelve solo un array de JSON, donde cada objeto tenga las llaves 'evento_principal', 'descripcion' y 'horarios'. "
-        "No incluyas texto adicional ni explicaciones, solo el JSON. "
-        f"JSON de eventos: {json.dumps(eventos_data)}"
+        "**NO incluyas texto adicional ni explicaciones, solo el JSON.** "
+        "JSON de eventos: " + json.dumps(eventos_data)
     )
 
     try:
         response = model.generate_content(prompt)
-        # La respuesta de Gemini contendrá el JSON con los eventos filtrados.
-        return json.loads(response.text)
+        # Limpia la respuesta de cualquier texto inesperado que rodee el JSON
+        response_text = response.text.strip().replace("```json\n", "").replace("\n```", "")
+        # Ahora intenta cargar el JSON limpio
+        return json.loads(response_text)
     except Exception as e:
         print(f"Error al comunicarse con Gemini o decodificar la respuesta: {e}")
         return None
