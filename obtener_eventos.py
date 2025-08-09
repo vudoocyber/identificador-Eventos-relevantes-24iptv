@@ -112,15 +112,17 @@ def generar_html(eventos, filename):
 def generar_mensaje_whatsapp(eventos, filename):
     """
     Genera un mensaje atractivo para WhatsApp con la ayuda de Gemini y lo guarda en un HTML.
+    Incluye la URL de la página web al final del mensaje.
     """
     prompt = (
         "Crea un mensaje atractivo y conciso para enviar a clientes por WhatsApp. "
         "El mensaje debe captar su atención, ofrecerles los eventos deportivos más importantes del día, "
         "y generar interés para que quieran verlos. "
         "Usa emojis relevantes y un tono comercial amigable. "
+        f"Al final del mensaje, incluye la siguiente URL: https://24hometv.xyz/. "
         "Los eventos más importantes son: " + json.dumps(eventos)
     )
-    
+
     try:
         response = model.generate_content(prompt)
         whatsapp_message = response.text
