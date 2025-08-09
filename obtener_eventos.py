@@ -6,7 +6,6 @@ from datetime import datetime
 from ftplib import FTP
 
 # --- Configuración ---
-# Configura tu clave de API de Gemini desde GitHub Secrets
 genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 
 # Inicializa el modelo
@@ -53,9 +52,7 @@ def analizar_con_gemini(eventos_data):
 
     try:
         response = model.generate_content(prompt)
-        # Limpia la respuesta de cualquier texto inesperado que rodee el JSON
         response_text = response.text.strip().replace("```json\n", "").replace("\n```", "")
-        # Ahora intenta cargar el JSON limpio
         return json.loads(response_text)
     except Exception as e:
         print(f"Error al comunicarse con Gemini o decodificar la respuesta: {e}")
@@ -63,7 +60,7 @@ def analizar_con_gemini(eventos_data):
 
 # --- Funciones de generación y subida de archivos ---
 
-def generar_html(eventos):
+def generar_html(eventos, filename):
     """
     Genera un archivo HTML con los eventos importantes.
     """
@@ -105,10 +102,10 @@ def generar_html(eventos):
     </html>
     """
 
-    with open(NOMBRE_ARCHIVO_MENSAJE, "w") as f:
+    with open(filename, "w") as f:
         f.write(html_content)
 
-    print(f"Archivo '{NOMBRE_ARCHIVO_MENSAJE}' generado.")
+    print(f"Archivo '{filename}' generado.")
 
 def generar_texto_whatsapp(eventos):
     """
@@ -154,10 +151,9 @@ def main():
 
         if eventos_filtrados:
             print("\nAnálisis de Gemini recibido. Generando contenido...")
-            generar_html(eventos_filtrados)
+            generar_html(eventos_filtrados, NOMBRE_ARCHIVO_MENSAJE)
             generar_texto_whatsapp(eventos_filtrados)
 
-            # Subir el archivo HTML al servidor
             subir_por_ftp(NOMBRE_ARCHIVO_MENSAJE, FTP_DIR)
         else:
             print("No se pudo obtener una respuesta de Gemini.")
