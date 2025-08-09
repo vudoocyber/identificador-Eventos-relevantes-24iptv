@@ -119,6 +119,8 @@ def generar_mensaje_whatsapp(eventos, filename):
         "El mensaje debe captar su atención, ofrecerles los eventos deportivos más importantes del día, "
         "y generar interés para que quieran verlos. "
         "Usa emojis relevantes y un tono comercial amigable. "
+        "El mensaje debe tener una estructura clara usando saltos de línea. "
+        "Formatea los nombres de los eventos con negritas usando asteriscos (*) y añade los horarios. "
         f"Al final del mensaje, incluye la siguiente URL: https://24hometv.xyz/. "
         "Los eventos más importantes son: " + json.dumps(eventos)
     )
