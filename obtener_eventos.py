@@ -128,8 +128,16 @@ def subir_por_ftp(filename, remote_dir):
     Sube un archivo al servidor FTP.
     """
     try:
-        with FTP(FTP_HOST, FTP_USER, FTP_PASS) as ftp:
+        with FTP(FTP_HOST, FTP_USUARIO, FTP_CONTRASENA) as ftp:
+            # Añadimos un print para ver el directorio inicial
+            print(f"Conectado a {FTP_HOST}. Directorio actual: {ftp.pwd()}")
+            
+            # Intentamos cambiar de directorio
             ftp.cwd(remote_dir)
+            
+            # Añadimos otro print para ver el directorio después del cambio
+            print(f"Directorio remoto cambiado a: {ftp.pwd()}")
+            
             with open(filename, "rb") as file:
                 ftp.storbinary(f"STOR {os.path.basename(filename)}", file)
             print(f"Archivo '{filename}' subido exitosamente a '{FTP_HOST}{remote_dir}'.")
