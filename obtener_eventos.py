@@ -17,7 +17,6 @@ FTP_HOST = os.environ.get("FTP_HOST")
 FTP_USER = os.environ.get("FTP_USUARIO")
 FTP_PASS = os.environ.get("FTP_CONTRASENA")
 NOMBRE_ARCHIVO_MENSAJE = os.environ.get("NOMBRE_ARCHIVO_MENSAJE", "eventos-relevantes.html")
-FTP_DIR = os.environ.get("FTP_DIR", "/")
 
 # --- Funciones de obtención y análisis ---
 
@@ -123,24 +122,15 @@ def generar_texto_whatsapp(eventos):
     print(whatsapp_text)
     print("---------------------------------------")
 
-def subir_por_ftp(filename, remote_dir):
+def subir_por_ftp(filename):
     """
     Sube un archivo al servidor FTP.
     """
     try:
-        with FTP(FTP_HOST, FTP_USUARIO, FTP_CONTRASENA) as ftp:
-            # Añadimos un print para ver el directorio inicial
-            print(f"Conectado a {FTP_HOST}. Directorio actual: {ftp.pwd()}")
-            
-            # Intentamos cambiar de directorio
-            ftp.cwd(remote_dir)
-            
-            # Añadimos otro print para ver el directorio después del cambio
-            print(f"Directorio remoto cambiado a: {ftp.pwd()}")
-            
+        with FTP(FTP_HOST, FTP_USER, FTP_PASS) as ftp:
             with open(filename, "rb") as file:
                 ftp.storbinary(f"STOR {os.path.basename(filename)}", file)
-            print(f"Archivo '{filename}' subido exitosamente a '{FTP_HOST}{remote_dir}'.")
+            print(f"Archivo '{filename}' subido exitosamente a '{FTP_HOST}'.")
     except Exception as e:
         print(f"Error al subir el archivo por FTP: {e}")
 
@@ -162,7 +152,7 @@ def main():
             generar_html(eventos_filtrados, NOMBRE_ARCHIVO_MENSAJE)
             generar_texto_whatsapp(eventos_filtrados)
 
-            subir_por_ftp(NOMBRE_ARCHIVO_MENSAJE, FTP_DIR)
+            subir_por_ftp(NOMBRE_ARCHIVO_MENSAJE)
         else:
             print("No se pudo obtener una respuesta de Gemini.")
     else:
