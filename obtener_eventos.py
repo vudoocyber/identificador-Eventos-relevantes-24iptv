@@ -42,8 +42,11 @@ def analizar_con_gemini(eventos_data):
     """
     prompt = (
         "Analiza el siguiente JSON con eventos deportivos y especiales. "
-        "Basándote en la popularidad de las ligas, la cobertura mediática en la web y la relevancia de los competidores, "
-        "identifica los 3 eventos más importantes del día. "
+        "Tu objetivo es identificar los 3 eventos más relevantes y exclusivos del día. "
+        "Considera los siguientes criterios en orden de importancia: "
+        "1. **Audiencia masiva:** Eventos de ligas o deportes con gran cantidad de seguidores a nivel global (Ej. finales de la Champions League, Super Bowl, NBA Finals, peleas de boxeo de alto perfil). "
+        "2. **Exclusividad/Impacto mediático:** Eventos que captan la mayor atención en redes sociales y medios de comunicación, o que tienen una cobertura de pago o limitada. "
+        "3. **Relevancia de los competidores:** Partidos entre equipos o deportistas de élite. "
         "Devuelve solo un array de JSON, donde cada objeto tenga las llaves 'evento_principal', 'descripcion' y 'horarios'. "
         "**NO incluyas texto adicional ni explicaciones, solo el JSON.** "
         "JSON de eventos: " + json.dumps(eventos_data)
