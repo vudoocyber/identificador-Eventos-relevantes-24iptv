@@ -38,16 +38,17 @@ def obtener_eventos_json(url):
 
 def analizar_con_gemini(eventos_data):
     """
-    Envía los datos de eventos a Gemini para su análisis y filtra los 3 más importantes.
+    Envía los datos de eventos a Gemini para su análisis y filtra los 5 más importantes.
     """
     prompt = (
         "Analiza el siguiente JSON con eventos deportivos y especiales. "
-        "Tu objetivo es identificar los 3 eventos más relevantes y exclusivos del día. "
+        "Tu objetivo es identificar los 5 eventos más relevantes, populares y exclusivos del día. "
         "Considera los siguientes criterios en orden de importancia: "
-        "1. **Audiencia masiva:** Eventos de ligas o deportes con gran cantidad de seguidores a nivel global (Ej. finales de la Champions League, Super Bowl, NBA Finals, peleas de boxeo de alto perfil). "
-        "2. **Exclusividad/Impacto mediático:** Eventos que captan la mayor atención en redes sociales y medios de comunicación, o que tienen una cobertura de pago o limitada. "
+        "1. Eventos **PPV (Pay-Per-View)** o con alta exclusividad. "
+        "2. **Audiencia masiva:** Eventos de ligas o deportes con gran cantidad de seguidores a nivel global (Ej. finales de la Champions League, Super Bowl, NBA Finals, peleas de boxeo de alto perfil). "
         "3. **Relevancia de los competidores:** Partidos entre equipos o deportistas de élite. "
-        "Devuelve solo un array de JSON, donde cada objeto tenga las llaves 'evento_principal', 'descripcion' y 'horarios'. "
+        "Devuelve solo un array de JSON, donde cada objeto tenga las llaves 'evento_principal', 'descripcion', 'horarios' y 'canales' (con el nombre de los canales de TV o plataformas de streaming). "
+        "Limita la respuesta a un máximo de 5 eventos. "
         "**NO incluyas texto adicional ni explicaciones, solo el JSON.** "
         "JSON de eventos: " + json.dumps(eventos_data)
     )
@@ -59,8 +60,6 @@ def analizar_con_gemini(eventos_data):
     except Exception as e:
         print(f"Error al comunicarse con Gemini o decodificar la respuesta: {e}")
         return None
-
-# --- Funciones de generación y subida de archivos ---
 
 def generar_html(eventos, filename):
     """
@@ -95,6 +94,7 @@ def generar_html(eventos, filename):
             <h2>{evento.get("evento_principal", "")}</h2>
             <p><strong>Descripción:</strong> {evento.get("descripcion", "")}</p>
             <p><strong>Horario:</strong> {evento.get("horarios", "")}</p>
+            <p><strong>Canales:</strong> {evento.get("canales", "No especificado")}</p>
         </div>
         """
 
@@ -109,21 +109,41 @@ def generar_html(eventos, filename):
 
     print(f"Archivo '{filename}' generado.")
 
-def generar_texto_whatsapp(eventos):
+def generar_mensaje_whatsapp(eventos, filename):
     """
-    Genera el texto formateado para WhatsApp y estados.
+    Genera un mensaje atractivo para WhatsApp con la ayuda de Gemini y lo guarda en un HTML.
     """
-    whatsapp_text = "¡Hola! Estos son los eventos más importantes de hoy:\n\n"
-
-    for evento in eventos:
-        whatsapp_text += f"*{evento.get('evento_principal', '')}*\n"
-        whatsapp_text += f"📅 {evento.get('descripcion', '')}\n"
-        whatsapp_text += f"⏰ {evento.get('horarios', '')}\n\n"
-
-    print("\nTexto para WhatsApp y estados generado:")
-    print("---------------------------------------")
-    print(whatsapp_text)
-    print("---------------------------------------")
+    prompt = (
+        "Crea un mensaje atractivo y conciso para enviar a clientes por WhatsApp. "
+        "El mensaje debe captar su atención, ofrecerles los eventos deportivos más importantes del día, "
+        "y generar interés para que quieran verlos. "
+        "Usa emojis relevantes y un tono comercial amigable. "
+        "Los eventos más importantes son: " + json.dumps(eventos)
+    )
+    
+    try:
+        response = model.generate_content(prompt)
+        whatsapp_message = response.text
+        html_content = f"""
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Mensaje de WhatsApp</title>
+        </head>
+        <body>
+            <pre>{whatsapp_message}</pre>
+        </body>
+        </html>
+        """
+        with open(filename, "w") as f:
+            f.write(html_content)
+        print(f"Mensaje de WhatsApp generado en el archivo '{filename}'.")
+        return whatsapp_message
+    except Exception as e:
+        print(f"Error al generar el mensaje de WhatsApp con Gemini: {e}")
+        return None
 
 def subir_por_ftp(filename):
     """
@@ -152,10 +172,15 @@ def main():
 
         if eventos_filtrados:
             print("\nAnálisis de Gemini recibido. Generando contenido...")
+            
+            # Genera y sube el archivo HTML principal
             generar_html(eventos_filtrados, NOMBRE_ARCHIVO_MENSAJE)
-            generar_texto_whatsapp(eventos_filtrados)
-
             subir_por_ftp(NOMBRE_ARCHIVO_MENSAJE)
+            
+            # Genera el mensaje de WhatsApp y lo guarda en un archivo HTML separado
+            whatsapp_filename = "eventos-relevantes-whastapp.html"
+            generar_mensaje_whatsapp(eventos_filtrados, whatsapp_filename)
+            subir_por_ftp(whatsapp_filename)
         else:
             print("No se pudo obtener una respuesta de Gemini.")
     else:
