@@ -116,12 +116,11 @@ def generar_mensaje_whatsapp(eventos, filename):
     """
     prompt = (
         "Crea un mensaje atractivo y conciso para enviar a clientes por WhatsApp. "
-        "El mensaje debe captar su atención, ofrecerles los eventos deportivos más importantes del día, "
-        "y generar interés para que quieran verlos. "
+        "El mensaje debe captar su atención y ser fácil de leer. "
         "Usa emojis relevantes y un tono comercial amigable. "
-        "El mensaje debe tener una estructura clara usando saltos de línea. "
-        "Formatea los nombres de los eventos con negritas usando asteriscos (*) y añade los horarios. "
-        f"Al final del mensaje, incluye la siguiente URL: https://24hometv.xyz/. "
+        "Formatea los nombres de los eventos con negritas usando un asterisco (*) al inicio y un asterisco (*) al final de la frase. "
+        "Asegúrate de que cada evento esté en su propia línea, con el título en negritas y la descripción con los horarios. "
+        "Al final del mensaje, incluye la siguiente URL: https://24hometv.xyz/. "
         "Los eventos más importantes son: " + json.dumps(eventos)
     )
 
